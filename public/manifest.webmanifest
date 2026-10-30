@@ -1,0 +1,380 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #07172d;
+  --bg-soft: #0f1d34;
+  --panel: rgba(15, 29, 52, 0.9);
+  --panel-alt: rgba(17, 35, 60, 0.9);
+  --card: #102542;
+  --card-strong: #143867;
+  --line: rgba(148, 163, 184, 0.2);
+  --text: #edf6ff;
+  --muted: #9eb7d6;
+  --green: #34d399;
+  --green-strong: #10b981;
+  --blue: #60a5fa;
+  --orange: #fbbf24;
+  --shadow: 0 18px 38px rgba(15, 23, 42, 0.4);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #123669 0%, var(--bg) 45%);
+  color: var(--text);
+  font-family: Inter, 'Segoe UI', sans-serif;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 20px;
+}
+
+.topbar h1 {
+  margin: 4px 0 0;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.eyebrow.muted {
+  color: var(--muted);
+}
+
+.chip {
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.chip.success {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.content {
+  display: grid;
+  gap: 20px;
+}
+
+.hero-card,
+.panel,
+.stat-card {
+  background: rgba(15, 29, 52, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(12, 103, 199, 0.28), rgba(25, 55, 120, 0.85));
+}
+
+.hero-card h2 {
+  margin: 8px 0 6px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.hero-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.hero-metric {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  min-width: 98px;
+  padding: 15px 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-metric span {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.hero-metric small {
+  color: var(--muted);
+}
+
+.day-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.day-pill {
+  border: 1px solid var(--line);
+  background: rgba(15, 29, 52, 0.8);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.day-pill.active {
+  background: linear-gradient(135deg, var(--blue), #1d4ed8);
+  border-color: transparent;
+}
+
+.panel {
+  padding: 18px 16px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.panel-header span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+}
+
+.exercise-list,
+.library-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.exercise-card,
+.library-card {
+  background: rgba(18, 33, 58, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.exercise-card {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+}
+
+.exercise-card.done {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(12, 40, 30, 0.65);
+}
+
+.exercise-card img,
+.library-card img {
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  object-fit: cover;
+}
+
+.exercise-body,
+.library-body {
+  padding: 14px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.title-row h4,
+.library-body h4 {
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+}
+
+.exercise-type {
+  margin: 0;
+  color: var(--blue);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.meta-row span {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.helper-text {
+  margin: 10px 0 0;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.mark-button {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 12px;
+  min-width: 96px;
+  cursor: pointer;
+}
+
+.mark-button.done {
+  background: rgba(52, 211, 153, 0.16);
+  border-color: rgba(52, 211, 153, 0.38);
+  color: var(--green);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  padding: 18px 16px;
+}
+
+.stat-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+.library-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.library-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.library-card img {
+  aspect-ratio: 3 / 2;
+  min-height: 160px;
+}
+
+.library-body p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.library-body ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--text);
+  line-height: 1.8;
+}
+
+@media (max-width: 700px) {
+  .topbar,
+  .hero-card,
+  .panel-header {
+    display: block;
+  }
+
+  .topbar {
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    display: inline-block;
+    margin-top: 12px;
+  }
+
+  .exercise-card {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title-row {
+    display: block;
+  }
+
+  .mark-button {
+    margin-top: 12px;
+    width: 100%;
+  }
+}

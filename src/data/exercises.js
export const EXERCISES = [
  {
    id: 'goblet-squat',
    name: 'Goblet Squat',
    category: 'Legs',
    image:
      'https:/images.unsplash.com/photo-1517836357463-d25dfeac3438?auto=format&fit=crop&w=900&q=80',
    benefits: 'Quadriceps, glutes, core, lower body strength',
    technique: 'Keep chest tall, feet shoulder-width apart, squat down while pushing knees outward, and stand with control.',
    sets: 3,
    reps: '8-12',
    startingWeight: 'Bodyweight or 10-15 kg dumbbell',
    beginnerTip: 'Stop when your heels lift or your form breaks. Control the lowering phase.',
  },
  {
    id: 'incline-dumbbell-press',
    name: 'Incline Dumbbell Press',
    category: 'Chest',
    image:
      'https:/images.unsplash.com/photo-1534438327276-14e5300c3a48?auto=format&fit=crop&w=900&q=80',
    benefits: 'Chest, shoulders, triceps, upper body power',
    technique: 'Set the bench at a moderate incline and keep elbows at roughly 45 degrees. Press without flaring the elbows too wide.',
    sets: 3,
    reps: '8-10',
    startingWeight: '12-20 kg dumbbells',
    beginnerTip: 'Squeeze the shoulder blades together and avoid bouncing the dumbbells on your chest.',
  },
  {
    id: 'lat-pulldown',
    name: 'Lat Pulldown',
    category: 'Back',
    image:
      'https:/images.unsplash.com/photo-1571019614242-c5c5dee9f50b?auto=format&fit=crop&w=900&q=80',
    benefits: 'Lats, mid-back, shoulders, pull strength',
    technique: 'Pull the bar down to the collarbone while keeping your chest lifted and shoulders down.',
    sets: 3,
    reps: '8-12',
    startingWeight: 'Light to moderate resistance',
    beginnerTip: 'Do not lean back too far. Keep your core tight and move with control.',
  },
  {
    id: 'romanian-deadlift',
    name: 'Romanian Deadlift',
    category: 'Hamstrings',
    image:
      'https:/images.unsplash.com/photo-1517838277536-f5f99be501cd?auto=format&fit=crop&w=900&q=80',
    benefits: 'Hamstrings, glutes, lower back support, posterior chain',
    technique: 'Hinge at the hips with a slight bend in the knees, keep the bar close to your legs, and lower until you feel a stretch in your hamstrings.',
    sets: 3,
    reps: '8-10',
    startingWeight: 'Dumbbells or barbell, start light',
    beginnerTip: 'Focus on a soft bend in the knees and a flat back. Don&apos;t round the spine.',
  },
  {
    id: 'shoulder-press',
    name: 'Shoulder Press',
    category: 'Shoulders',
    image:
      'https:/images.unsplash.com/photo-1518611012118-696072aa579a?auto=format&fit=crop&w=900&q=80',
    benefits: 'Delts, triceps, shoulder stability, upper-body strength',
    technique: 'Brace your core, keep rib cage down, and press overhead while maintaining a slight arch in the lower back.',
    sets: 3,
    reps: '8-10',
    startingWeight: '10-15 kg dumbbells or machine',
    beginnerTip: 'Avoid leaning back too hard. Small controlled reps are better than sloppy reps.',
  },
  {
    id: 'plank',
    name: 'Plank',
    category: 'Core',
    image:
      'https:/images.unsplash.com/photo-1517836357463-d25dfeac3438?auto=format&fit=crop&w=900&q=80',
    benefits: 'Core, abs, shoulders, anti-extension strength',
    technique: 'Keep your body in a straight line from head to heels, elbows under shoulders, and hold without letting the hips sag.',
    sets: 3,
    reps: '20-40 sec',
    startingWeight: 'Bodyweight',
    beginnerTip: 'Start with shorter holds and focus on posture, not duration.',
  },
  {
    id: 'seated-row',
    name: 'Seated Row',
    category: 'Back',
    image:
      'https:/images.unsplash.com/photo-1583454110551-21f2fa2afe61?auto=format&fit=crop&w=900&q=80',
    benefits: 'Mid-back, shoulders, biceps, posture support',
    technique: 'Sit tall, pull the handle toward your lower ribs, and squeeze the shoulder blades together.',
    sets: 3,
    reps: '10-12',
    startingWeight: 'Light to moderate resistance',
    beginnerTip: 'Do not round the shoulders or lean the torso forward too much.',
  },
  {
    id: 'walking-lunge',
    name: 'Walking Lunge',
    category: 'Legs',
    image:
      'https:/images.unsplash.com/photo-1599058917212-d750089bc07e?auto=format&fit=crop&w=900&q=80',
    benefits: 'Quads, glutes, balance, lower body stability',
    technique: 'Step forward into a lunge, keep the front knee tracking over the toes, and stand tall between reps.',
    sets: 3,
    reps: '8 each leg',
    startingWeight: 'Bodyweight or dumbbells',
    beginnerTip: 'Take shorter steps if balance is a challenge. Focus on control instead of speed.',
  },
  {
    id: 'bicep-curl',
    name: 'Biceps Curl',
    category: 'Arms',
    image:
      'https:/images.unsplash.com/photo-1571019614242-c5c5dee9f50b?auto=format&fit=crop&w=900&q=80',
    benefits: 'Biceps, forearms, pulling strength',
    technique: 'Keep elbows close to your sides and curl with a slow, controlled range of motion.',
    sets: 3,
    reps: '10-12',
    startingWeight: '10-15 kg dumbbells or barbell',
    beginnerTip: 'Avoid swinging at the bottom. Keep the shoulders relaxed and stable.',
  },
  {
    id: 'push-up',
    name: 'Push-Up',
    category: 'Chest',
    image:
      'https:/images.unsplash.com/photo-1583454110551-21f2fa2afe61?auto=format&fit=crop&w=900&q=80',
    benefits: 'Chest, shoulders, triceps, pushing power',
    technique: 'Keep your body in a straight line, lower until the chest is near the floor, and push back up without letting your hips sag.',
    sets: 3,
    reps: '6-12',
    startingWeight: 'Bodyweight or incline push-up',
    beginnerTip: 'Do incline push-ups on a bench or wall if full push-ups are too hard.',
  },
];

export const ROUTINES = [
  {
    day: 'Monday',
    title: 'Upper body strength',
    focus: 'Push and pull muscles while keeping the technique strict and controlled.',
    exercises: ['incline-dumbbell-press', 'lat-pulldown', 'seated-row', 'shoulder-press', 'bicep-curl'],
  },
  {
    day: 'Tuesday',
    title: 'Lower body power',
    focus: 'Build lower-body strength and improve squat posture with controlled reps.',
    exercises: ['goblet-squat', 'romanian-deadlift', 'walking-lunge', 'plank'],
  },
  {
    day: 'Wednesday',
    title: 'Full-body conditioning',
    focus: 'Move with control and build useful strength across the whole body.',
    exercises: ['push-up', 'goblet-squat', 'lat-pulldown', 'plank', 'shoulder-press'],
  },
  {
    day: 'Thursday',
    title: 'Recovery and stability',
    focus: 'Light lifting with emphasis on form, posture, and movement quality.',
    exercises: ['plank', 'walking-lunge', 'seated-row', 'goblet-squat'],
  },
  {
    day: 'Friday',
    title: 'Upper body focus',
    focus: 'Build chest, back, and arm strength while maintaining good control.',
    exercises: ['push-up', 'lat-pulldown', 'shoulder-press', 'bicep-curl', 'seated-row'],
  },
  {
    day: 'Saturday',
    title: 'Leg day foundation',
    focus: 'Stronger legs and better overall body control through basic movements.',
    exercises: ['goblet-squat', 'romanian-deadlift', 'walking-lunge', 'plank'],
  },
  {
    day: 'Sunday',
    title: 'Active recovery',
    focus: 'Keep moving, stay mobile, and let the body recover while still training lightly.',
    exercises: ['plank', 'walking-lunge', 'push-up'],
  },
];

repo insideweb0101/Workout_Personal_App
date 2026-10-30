@@ -1,0 +1,186 @@
+import { useEffect, useMemo, useState } from 'react';
+import { EXERCISES, ROUTINES } from './data/exercises';
+
+const STORAGE_KEY = 'workout-personal-app-v1';
+
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function App() {
+  const [selectedDay, setSelectedDay] = useState(dayNames[new Date().getDay()]);
+  const [exerciseLog, setExerciseLog] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(exerciseLog));
+  }, [exerciseLog]);
+
+  const routineForDay = ROUTINES.find((item) => item.day === selectedDay) || ROUTINES[0];
+
+  const todaysExercises = useMemo(
+    () =>
+      routineForDay.exercises
+        .map((exerciseId) => EXERCISES.find((exercise) => exercise.id === exerciseId))
+        .filter(Boolean),
+    [routineForDay]
+  );
+
+  const completedToday = exerciseLog[selectedDay] || [];
+  const workoutCount = Object.keys(exerciseLog).filter((day) => exerciseLog[day]?.length).length;
+
+  const toggleExercise = (exerciseId) => {
+    setExerciseLog((previous) => {
+      const current = previous[selectedDay] || [];
+      const alreadyDone = current.includes(exerciseId);
+
+      return {
+        ...previous,
+        [selectedDay]: alreadyDone
+          ? current.filter((id) => id !== exerciseId)
+          : [...current, exerciseId],
+      };
+    });
+  };
+
+  const completionPercent = Math.round((completedToday.length / todaysExercises.length) * 100) || 0;
+
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div>
+          <p className="eyebrow">Personal fitness</p>
+          <h1>Workout Personal App</h1>
+        </div>
+        <div className="chip success">{completionPercent}% done</div>
+      </header>
+
+      <main className="content">
+        <section className="hero-card">
+          <div>
+            <p className="eyebrow muted">Today&apos;s plan</p>
+            <h2>{routineForDay.title}</h2>
+            <p>{routineForDay.focus}</p>
+          </div>
+          <div className="hero-metric">
+            <span>{completedToday.length}</span>
+            <small>completed</small>
+          </div>
+        </section>
+
+        <section className="day-selector" aria-label="Workout days">
+          {dayNames.map((day) => (
+            <button
+              key={day}
+              type="button"
+              className={day === selectedDay ? 'day-pill active' : 'day-pill'}
+              onClick={() => setSelectedDay(day)}
+            >
+              {day.slice(0, 3)}
+            </button>
+          ))}
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <h3>{selectedDay} workout</h3>
+            <span>{completedToday.length}/{todaysExercises.length} done</span>
+          </div>
+
+          <div className="progress-bar" aria-label="Workout progress">
+            <span style={{ width: `${completionPercent}%` }} />
+          </div>
+
+          <div className="exercise-list">
+            {todaysExercises.map((exercise) => {
+              const isCompleted = completedToday.includes(exercise.id);
+
+              return (
+                <article key={exercise.id} className={isCompleted ? 'exercise-card done' : 'exercise-card'}>
+                  <img src={exercise.image} alt={exercise.name} />
+                  <div className="exercise-body">
+                    <div className="title-row">
+                      <div>
+                        <p className="exercise-type">{exercise.category}</p>
+                        <h4>{exercise.name}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        className={isCompleted ? 'mark-button done' : 'mark-button'}
+                        onClick={() => toggleExercise(exercise.id)}
+                      >
+                        {isCompleted ? 'Done' : 'Mark done'}
+                      </button>
+                    </div>
+
+                    <div className="meta-row">
+                      <span>{exercise.sets} sets</span>
+                      <span>{exercise.reps} reps</span>
+                      <span>{exercise.startingWeight}</span>
+                    </div>
+
+                    <p className="helper-text">
+                      <strong>Helps:</strong> {exercise.benefits}
+                    </p>
+                    <p className="helper-text">
+                      <strong>Technique:</strong> {exercise.technique}
+                    </p>
+                    <p className="helper-text">
+                      <strong>Tip:</strong> {exercise.beginnerTip}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="stats-grid">
+          <div className="stat-card">
+            <span className="stat-label">Workouts logged</span>
+            <strong>{workoutCount}</strong>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Current focus</span>
+            <strong>{routineForDay.focus.split(' ')[0]}</strong>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Best habit</span>
+            <strong>Form first</strong>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <h3>Exercise library</h3>
+            <span>Beginner-friendly</span>
+          </div>
+
+          <div className="library-grid">
+            {EXERCISES.map((exercise) => (
+              <article key={exercise.id} className="library-card">
+                <img src={exercise.image} alt={exercise.name} />
+                <div className="library-body">
+                  <p className="exercise-type">{exercise.category}</p>
+                  <h4>{exercise.name}</h4>
+                  <p>{exercise.benefits}</p>
+                  <ul>
+                    <li>Sets: {exercise.sets}</li>
+                    <li>Reps: {exercise.reps}</li>
+                    <li>Start: {exercise.startingWeight}</li>
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default App;

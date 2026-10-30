@@ -1,0 +1,16 @@
+{
+  "name": "Workout Personal App",
+  "short_name": "Workout App",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#07172d",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
