@@ -33,7 +33,7 @@ export default function App() {
         <div className="cards">{exercises.map((exercise) => <article className={`exercise ${done.includes(exercise.id) ? 'completed' : ''}`} key={exercise.id}>
           <ExerciseGuide exercise={exercise} />
           <div className="details"><div className="exercise-title"><div><span className="category">{exercise.category}</span><h3>{exercise.name}</h3></div><button className="complete" onClick={() => toggle(exercise.id)}>{done.includes(exercise.id) ? 'Done ✓' : 'Mark done'}</button></div>
-            <div className="prescription"><span>{exercise.sets} sets</span><span>{exercise.reps} reps</span><span>Start: {exercise.startingWeight}</span></div>
+            <div className="prescription"><span>{exercise.sets} sets</span><span>{exercise.reps} reps</span>{exercise.rest && <span>Rest: {exercise.rest}</span>}<span>Start: {exercise.startingWeight}</span></div>
             <p><b>Works:</b> {exercise.benefits}</p><p><b>Technique:</b> {exercise.technique}</p><p><b>Beginner tip:</b> {exercise.tip}</p>
           </div></article>)}</div>
       </section>
