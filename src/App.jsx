@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EXERCISES, ROUTINES } from './data/exercises.js';
+import ExerciseGuide from './components/ExerciseGuide.jsx';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const KEY = 'workout-app-log-v1';
@@ -30,13 +31,13 @@ export default function App() {
     {!isRestDay && <>
       <section className="section"><div className="section-head"><h2>{day}'s workout</h2><span>{percent}%</span></div><div className="progress"><span style={{ width: `${percent}%` }} /></div>
         <div className="cards">{exercises.map((exercise) => <article className={`exercise ${done.includes(exercise.id) ? 'completed' : ''}`} key={exercise.id}>
-          <img src={exercise.image} alt={`${exercise.name} exercise`} loading="lazy" />
+          <ExerciseGuide exercise={exercise} />
           <div className="details"><div className="exercise-title"><div><span className="category">{exercise.category}</span><h3>{exercise.name}</h3></div><button className="complete" onClick={() => toggle(exercise.id)}>{done.includes(exercise.id) ? 'Done ✓' : 'Mark done'}</button></div>
             <div className="prescription"><span>{exercise.sets} sets</span><span>{exercise.reps} reps</span><span>Start: {exercise.startingWeight}</span></div>
             <p><b>Works:</b> {exercise.benefits}</p><p><b>Technique:</b> {exercise.technique}</p><p><b>Beginner tip:</b> {exercise.tip}</p>
           </div></article>)}</div>
       </section>
-      <section className="section"><div className="section-head"><h2>Exercise library</h2><span>{EXERCISES.length} exercises</span></div><div className="library">{EXERCISES.map((exercise) => <article className="library-card" key={exercise.id}><img src={exercise.image} alt="" loading="lazy"/><div><span className="category">{exercise.category}</span><h3>{exercise.name}</h3><p>{exercise.benefits}</p></div></article>)}</div></section>
+      <section className="section"><div className="section-head"><h2>Exercise library</h2><span>{EXERCISES.length} exercises</span></div><div className="library">{EXERCISES.map((exercise) => <article className="library-card" key={exercise.id}><ExerciseGuide exercise={exercise} compact /><div><span className="category">{exercise.category}</span><h3>{exercise.name}</h3><p>{exercise.benefits}</p><p><b>Technique:</b> {exercise.technique}</p></div></article>)}</div></section>
       <p className="note">Choose a manageable weight that lets you keep good form. Stop if you feel sharp pain, and ask a qualified trainer to check your technique.</p>
     </>}
   </main>;
