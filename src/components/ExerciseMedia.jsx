@@ -33,49 +33,39 @@ const MUSCLE_GROUPS = {
   'prone-cobra-hold': { primary: ['Spinal erectors', 'Trapezius'], secondary: ['Gluteus maximus'] },
 };
 
-// Original vector anatomy: paired front/back muscle shapes, drawn over a neutral body silhouette.
+// Original, simplified anatomy. Front/back-specific regions avoid painting the same
+// arm or leg area twice (for example, biceps and triceps on top of each other).
 const ANATOMY = {
   front: {
-    'Pectorals': ['M65 61 Q72 54 79 61 L78 73 Q70 76 64 69 Z', 'M81 61 Q88 54 95 61 L96 69 Q90 76 82 73 Z'],
-    'Anterior deltoids': ['M61 53 Q65 49 70 54 L67 64 Q63 66 60 61 Z', 'M90 54 Q95 49 99 53 L100 61 Q97 66 93 64 Z'],
-    'Deltoids': ['M60 52 Q65 47 71 53 L67 65 Q62 67 59 61 Z', 'M89 53 Q95 47 100 52 L101 61 Q98 67 93 65 Z'],
-    'Biceps': ['M56 68 Q60 66 63 70 L61 83 Q58 86 55 82 Z', 'M97 70 Q100 66 104 68 L105 82 Q102 86 99 83 Z'],
-    'Triceps': ['M55 68 Q58 66 60 70 L59 82 Q56 85 54 81 Z', 'M100 70 Q102 66 105 68 L106 81 Q104 85 101 82 Z'],
-    'Forearm flexors': ['M52 86 Q56 83 59 86 L56 103 L52 104 Z', 'M101 86 Q104 83 108 86 L108 104 L104 103 Z'],
-    'Abdominals': ['M73 77 Q79 75 80 78 L80 91 L73 91 Z', 'M82 78 Q86 75 91 77 L91 91 L82 91 Z', 'M73 93 L80 93 L80 105 L74 105 Z', 'M82 93 L91 93 L90 105 L82 105 Z'],
-    'Quadriceps': ['M68 111 Q74 108 78 112 L77 132 Q74 137 69 132 Z', 'M83 112 Q88 108 94 111 L93 132 Q88 137 84 132 Z'],
-    'Gluteus maximus': ['M69 99 Q74 96 79 100 L78 111 L69 111 Z', 'M82 100 Q87 96 93 99 L93 111 L83 111 Z'],
-    'Hamstrings': ['M69 114 Q73 111 78 114 L77 132 L71 134 Z', 'M84 114 Q89 111 93 114 L91 134 L85 132 Z'],
-    'Latissimus dorsi': ['M63 69 L71 74 L71 91 L66 94 L62 82 Z', 'M89 74 L97 69 L98 82 L94 94 L89 91 Z'],
-    'Trapezius': ['M73 49 L80 54 L80 64 L73 61 Z', 'M82 54 L89 49 L89 61 L82 64 Z'],
-    'Spinal erectors': ['M79 66 L81 66 L81 96 L79 96 Z'],
+    'Pectorals': ['M65 60 C68 56 75 56 79 61 L78 72 C73 75 67 72 64 68 Z', 'M81 61 C85 56 92 56 96 60 L97 68 C94 72 87 75 82 72 Z'],
+    'Anterior deltoids': ['M60 51 C63 48 68 49 71 53 L67 63 C63 65 60 62 59 58 Z', 'M89 53 C92 49 97 48 100 51 L101 58 C100 62 97 65 93 63 Z'],
+    'Deltoids': ['M59 51 C63 47 69 48 72 53 L68 64 C63 66 59 62 58 57 Z', 'M88 53 C91 48 97 47 101 51 L102 57 C101 62 97 66 92 64 Z'],
+    'Biceps': ['M55 67 C58 65 62 67 63 71 L61 81 C59 84 56 83 54 80 Z', 'M97 71 C98 67 102 65 105 67 L106 80 C104 83 101 84 99 81 Z'],
+    'Forearm flexors': ['M52 85 L58 84 L56 101 L52 103 Z', 'M102 84 L108 85 L108 103 L104 101 Z'],
+    'Abdominals': ['M73 77 Q76 75 79 77 L79 89 L73 89 Z', 'M82 77 Q86 75 89 77 L89 89 L82 89 Z', 'M73 92 L79 92 L79 102 L73 102 Z', 'M82 92 L89 92 L89 102 L82 102 Z'],
+    'Quadriceps': ['M68 111 C71 108 76 109 78 113 L76 131 Q73 135 69 132 Z', 'M83 113 C85 109 90 108 94 111 L93 132 Q88 135 84 131 Z'],
+    'Latissimus dorsi': ['M63 68 L71 72 L70 88 L66 92 L62 81 Z', 'M90 72 L97 68 L98 81 L94 92 L90 88 Z'],
   },
   back: {
-    'Pectorals': [],
-    'Anterior deltoids': [],
-    'Deltoids': ['M59 52 Q65 47 71 53 L68 64 Q63 67 59 61 Z', 'M89 53 Q95 47 101 52 L101 61 Q97 67 92 64 Z'],
-    'Biceps': ['M55 68 Q59 65 62 70 L60 83 Q57 86 54 81 Z', 'M98 70 Q101 65 105 68 L106 81 Q103 86 100 83 Z'],
-    'Triceps': ['M54 68 Q58 65 61 70 L60 83 Q57 86 53 81 Z', 'M99 70 Q102 65 106 68 L107 81 Q104 86 101 83 Z'],
-    'Forearm flexors': ['M52 86 Q56 83 59 86 L56 103 L52 104 Z', 'M101 86 Q104 83 108 86 L108 104 L104 103 Z'],
-    'Abdominals': [],
-    'Quadriceps': [],
-    'Gluteus maximus': ['M69 99 Q74 96 79 100 L78 111 L69 111 Z', 'M82 100 Q87 96 93 99 L93 111 L83 111 Z'],
-    'Hamstrings': ['M69 113 Q74 109 78 114 L77 132 L71 134 Z', 'M83 114 Q88 109 93 113 L91 134 L85 132 Z'],
-    'Latissimus dorsi': ['M66 68 Q72 63 79 67 L78 89 L72 98 L65 86 Z', 'M82 67 Q89 63 95 68 L96 86 L89 98 L82 89 Z'],
-    'Trapezius': ['M74 49 L80 54 L80 72 L72 67 L68 57 Z', 'M82 54 L88 49 L94 57 L89 67 L82 72 Z', 'M73 69 L80 73 L80 79 L70 76 Z', 'M82 73 L89 69 L92 76 L82 79 Z'],
-    'Spinal erectors': ['M79 63 Q80 61 81 63 L81 98 L79 98 Z', 'M76 78 L78 78 L77 96 L75 96 Z', 'M83 78 L85 78 L86 96 L84 96 Z'],
+    'Deltoids': ['M59 51 C63 47 69 48 72 53 L68 64 C63 66 59 62 58 57 Z', 'M88 53 C91 48 97 47 101 51 L102 57 C101 62 97 66 92 64 Z'],
+    'Triceps': ['M54 68 C57 65 61 67 62 71 L60 81 C58 84 55 83 53 80 Z', 'M98 71 C99 67 103 65 106 68 L107 80 C105 83 102 84 100 81 Z'],
+    'Gluteus maximus': ['M68 98 Q73 95 79 99 L78 109 Q73 112 68 108 Z', 'M82 99 Q87 95 93 98 L93 108 Q87 112 82 109 Z'],
+    'Hamstrings': ['M68 113 C71 110 76 111 78 115 L76 131 Q73 134 69 132 Z', 'M83 115 C85 111 90 110 94 113 L93 132 Q88 134 84 131 Z'],
+    'Latissimus dorsi': ['M66 66 Q72 62 79 66 L78 87 Q74 94 70 96 L65 82 Z', 'M82 66 Q89 62 95 66 L96 82 L90 96 Q85 94 82 87 Z'],
+    'Trapezius': ['M74 47 L80 52 L80 69 L73 65 L69 56 Z', 'M82 52 L88 47 L93 56 L87 65 L82 69 Z', 'M72 68 L79 71 L79 77 L70 74 Z', 'M82 71 L89 68 L92 74 L82 77 Z'],
+    'Spinal erectors': ['M79 62 Q80 60 81 62 L81 96 L79 96 Z'],
   },
 };
 
 const muscleStyles = `
 .muscle-panel{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(150px,.95fr);gap:12px;align-items:center;margin-top:12px;padding:13px;border:1px solid #e3ebe4;border-radius:14px;background:#fff}
 .muscle-panel h4{font-size:.92rem;margin:0 0 4px;color:#263b2d}.muscle-panel p{font-size:.78rem;color:#64776a;line-height:1.45;margin:0 0 8px}
-.muscle-figures{display:flex;justify-content:center;gap:8px}.muscle-figure{width:min(46%,132px);height:auto}.muscle-figure-label{text-anchor:middle;font:700 8px system-ui,sans-serif;fill:#53675a}
+.muscle-figures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;justify-items:center;gap:8px;min-width:0}.muscle-figure{display:block;width:100%;max-width:132px;height:auto;min-width:0}.muscle-figure-label{text-anchor:middle;font:700 8px system-ui,sans-serif;fill:#53675a}
 .anatomy-muscle{stroke:#fff;stroke-width:.7;stroke-linejoin:round;opacity:.97}.anatomy-muscle.unused{fill:#d9e1dc}.anatomy-muscle.primary{fill:#bf4b43}.anatomy-muscle.secondary{fill:#e5a545}.anatomy-contour{fill:none;stroke:#8c9b91;stroke-width:.55;stroke-linecap:round;opacity:.9}
 .muscle-legend{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0}.muscle-legend span{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:#53675a}.muscle-swatch{display:inline-block;width:10px;height:10px;border-radius:50%;background:#bf4b43}.muscle-swatch.secondary{background:#e5a545}
 .muscle-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.muscle-tag{border-radius:999px;background:#f8e9e7;color:#85392f;padding:5px 8px;font-size:.72rem;font-weight:700}.muscle-tag.secondary{background:#fff2dc;color:#805514}
 .demo-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 12px;border-radius:10px;background:#173d2b;color:#fff;text-decoration:none;font-size:.82rem;font-weight:750;margin-top:5px}.demo-link:hover{background:#24583e}.demo-note{font-size:.7rem!important;margin-top:5px!important}
-@media(max-width:520px){.muscle-panel{grid-template-columns:1fr}.muscle-figures{justify-content:flex-start}.muscle-figure{width:82px}}
+@media(max-width:520px){.muscle-panel{grid-template-columns:1fr}.muscle-figures{grid-template-columns:repeat(2,minmax(0,110px));justify-content:start}.muscle-figure{width:100%;max-width:110px}}
 `;
 
 function MuscleFigure({ side, groups }) {
