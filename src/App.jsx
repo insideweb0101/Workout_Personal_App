@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { EXERCISES, ROUTINES } from './data/exercises.js';
 import ExerciseGuide from './components/ExerciseGuide.jsx';
+import ProfilePanel from './components/ProfilePanel.jsx';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const LOG_KEY = 'workout-app-log-v1';
 const PROGRESS_KEY = 'workout-app-progress-v1';
 const PROGRAM_KEY = 'workout-app-program-v1';
+const PROFILE_KEY = 'workout-app-profile-v1';
+const WEIGHT_TRAINING_MET = 3.5;
 
 const FULL_BODY_PROGRAM = {
   id: 'full-body-alternative',
@@ -25,6 +28,8 @@ const PROGRAMS = [
   { id: 'current', name: 'Test routine', routines: ROUTINES },
   FULL_BODY_PROGRAM,
 ];
+
+const DEFAULT_PROFILE = { name: '', heightCm: '', weight: '', weightUnit: 'lb', bodyFat: '', musclePercent: '', waistCm: '', proteinGoal: '' };
 
 function readStorage(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; } catch { return fallback; }
@@ -52,24 +57,49 @@ function getRepLabel(reps) {
   return /min|sec/i.test(reps || '') ? 'seconds' : 'reps';
 }
 
+function getWeightKg(profile) {
+  const value = Number(profile.weight);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return profile.weightUnit === 'lb' ? value / 2.20462 : value;
+}
+
+function estimateCalories(profile, seconds) {
+  const weightKg = getWeightKg(profile);
+  if (!weightKg || seconds <= 0) return null;
+  // Rough MET estimate for general resistance training, not a sensor measurement.
+  return Math.round((WEIGHT_TRAINING_MET * 3.5 * weightKg / 200) * (seconds / 60));
+}
+
 export default function App() {
   const [day, setDay] = useState(DAYS[(new Date().getDay() + 6) % 7]);
   const [programId, setProgramId] = useState(() => readStorage(PROGRAM_KEY, 'current'));
   const [log, setLog] = useState(() => readStorage(LOG_KEY, {}));
   const [progress, setProgress] = useState(() => readStorage(PROGRESS_KEY, { weights: {}, reps: {}, unit: 'lb' }));
+  const [profile, setProfile] = useState(() => ({ ...DEFAULT_PROFILE, ...readStorage(PROFILE_KEY, {}) }));
   const [view, setView] = useState('plan');
   const [activeIndex, setActiveIndex] = useState(0);
   const [timer, setTimer] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [sessionStartedAt, setSessionStartedAt] = useState(null);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => localStorage.setItem(LOG_KEY, JSON.stringify(log)), [log]);
   useEffect(() => localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)), [progress]);
   useEffect(() => localStorage.setItem(PROGRAM_KEY, JSON.stringify(programId)), [programId]);
+  useEffect(() => localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)), [profile]);
   useEffect(() => {
     if (!timer) return undefined;
     const interval = window.setInterval(() => setTimer((current) => Math.max(0, current - 1)), 1000);
     return () => window.clearInterval(interval);
   }, [timer > 0]);
+  useEffect(() => {
+    if (view !== 'workout' || !sessionStartedAt) return undefined;
+    const updateElapsed = () => setElapsedSeconds(Math.floor((Date.now() - sessionStartedAt) / 1000));
+    updateElapsed();
+    const interval = window.setInterval(updateElapsed, 1000);
+    return () => window.clearInterval(interval);
+  }, [view, sessionStartedAt]);
 
   const program = PROGRAMS.find((item) => item.id === programId) || PROGRAMS[0];
   const routine = program.routines.find((item) => item.day === day) || ROUTINES.find((item) => item.day === day) || ROUTINES[0];
@@ -79,6 +109,8 @@ export default function App() {
   const done = log[logKey] || [];
   const percent = exercises.length ? Math.round((done.length / exercises.length) * 100) : 0;
   const exercise = exercises[activeIndex];
+  const currentCalories = estimateCalories(profile, elapsedSeconds);
+  const finalCalories = estimateCalories(profile, sessionSeconds);
 
   function toggle(id) {
     setLog((current) => {
@@ -114,28 +146,34 @@ export default function App() {
 
   function startWorkout() {
     const firstUnfinished = exercises.findIndex((item) => !done.includes(item.id));
+    const started = Date.now();
     setActiveIndex(firstUnfinished < 0 ? 0 : firstUnfinished);
     setView('workout');
     setFinished(false);
     setTimer(0);
+    setSessionStartedAt(started);
+    setElapsedSeconds(0);
+    setSessionSeconds(0);
+  }
+
+  function closeWorkout(wrappedUp) {
+    const seconds = sessionStartedAt ? Math.max(0, Math.floor((Date.now() - sessionStartedAt) / 1000)) : elapsedSeconds;
+    setSessionSeconds(seconds);
+    setTimer(0);
+    setFinished(wrappedUp);
+    setView('summary');
   }
 
   function advanceExercise() {
     if (!exercise) return;
     if (!done.includes(exercise.id)) toggle(exercise.id);
     setTimer(0);
-    if (activeIndex === exercises.length - 1) {
-      setFinished(true);
-      setView('summary');
-    } else {
-      setActiveIndex((index) => index + 1);
-    }
+    if (activeIndex === exercises.length - 1) closeWorkout(true);
+    else setActiveIndex((index) => index + 1);
   }
 
   function finishEarly() {
-    setTimer(0);
-    setView('summary');
-    setFinished(true);
+    closeWorkout(false);
   }
 
   const setCount = exercise ? Math.max(1, Number(exercise.sets) || 1) : 0;
@@ -145,9 +183,12 @@ export default function App() {
 
   return <main className="wrap">
     <header className="header"><div><p className="kicker">YOUR TRAINING COMPANION</p><h1>Workout Personal</h1></div>{!isRestDay && <div className="badge">{percent}% complete</div>}</header>
+    <ProfilePanel profile={profile} onChange={setProfile} />
     <section className="program-picker"><label htmlFor="program-choice">Weekly plan</label><select id="program-choice" value={programId} onChange={(event) => changeProgram(event.target.value)}>{PROGRAMS.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><p>Your selected plan and workout progress are saved on this device.</p></section>
     <nav className="days" aria-label="Choose workout day">{DAYS.map((name) => <button key={name} onClick={() => selectDay(name)} className={day === name ? 'selected' : ''}>{name.slice(0, 3)}</button>)}</nav>
     <section className="hero"><div><p className="kicker">{view === 'workout' ? 'WORKOUT IN PROGRESS' : view === 'summary' ? 'SESSION COMPLETE' : 'YOUR PLAN'}</p><h2>{view === 'workout' && exercise ? exercise.name : routine.title}</h2><p>{view === 'workout' && exercise ? `Exercise ${activeIndex + 1} of ${exercises.length} · ${exercise.sets} sets · ${exercise.reps}` : view === 'summary' ? `${done.length} of ${exercises.length} exercises checked off.` : routine.focus}</p></div>{!isRestDay && <div className="count"><strong>{done.length}/{exercises.length}</strong><span>exercises done</span></div>}</section>
+
+    {view === 'workout' && <section className="calorie-estimate" aria-live="polite"><span className="calorie-icon" aria-hidden="true">⚡</span><div><strong>{currentCalories === null ? 'Add weight to estimate calories' : `About ${currentCalories} calories so far`}</strong><span>Rough exercise estimate · session time {formatTime(elapsedSeconds)}</span></div></section>}
 
     {view === 'plan' && !isRestDay && <>
       <section className="section routine-overview"><div className="section-head"><h2>{day}'s routine</h2><span>{exercises.length} exercises</span></div>
@@ -175,7 +216,7 @@ export default function App() {
       <button className="text-button finish-early" onClick={finishEarly}>Finish session early</button>
     </section>}
 
-    {view === 'summary' && <section className="section session-summary"><div className="summary-icon">✓</div><h2>{finished ? 'Workout wrapped up' : 'Workout summary'}</h2><p>You completed {done.length} of {exercises.length} planned exercises for {day}.</p><button className="start-button" onClick={() => setView('plan')}>Back to routine</button></section>}
+    {view === 'summary' && <section className="section session-summary"><div className="summary-icon">✓</div><h2>{finished ? 'Workout wrapped up' : 'Workout session ended'}</h2><p>You completed {done.length} of {exercises.length} planned exercises for {day}.</p><p className="calorie-summary">{finalCalories === null ? 'Add your body weight in your profile to see a rough calorie estimate.' : `Estimated calories burned: about ${finalCalories} kcal`}</p><p className="calorie-disclaimer">This is a broad estimate based on body weight, session duration, and a general resistance-training value—not a measurement. Actual calories vary significantly.</p><button className="start-button" onClick={() => setView('plan')}>Back to routine</button></section>}
     {!isRestDay && <p className="note">Choose a manageable weight and focus on comfortable, controlled form. Increase gradually only when all prescribed sets feel controlled and pain-free. Stop if you feel sharp pain.</p>}
   </main>;
 }
