@@ -82,10 +82,13 @@ function MuscleFigure({ side, groups }) {
     <defs><linearGradient id={`skin-${side}`} x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f3f4ef"/><stop offset=".55" stopColor="#c7d0ca"/><stop offset="1" stopColor="#eef0ec"/></linearGradient></defs>
     <g fill={`url(#skin-${side})`} stroke="#738278" strokeWidth="1.3" strokeLinejoin="round" strokeLinecap="round">
       <circle cx="80" cy="24" r="11" />
-      <path d="M72 35 Q64 37 58 42 L53 53 L60 61 L63 78 L67 96 L64 105 L69 111 L65 139 L63 164 Q68 168 75 165 L80 140 L85 165 Q92 168 97 164 L95 139 L91 111 L96 105 L93 96 L97 78 L100 61 L107 53 L102 42 Q96 37 88 35 L85 41 L75 41 Z" />
+      {/* Torso ends at the pelvis; legs are drawn only once in the separate limb paths below. */}
+      <path d="M72 35 Q64 37 58 42 L53 53 L60 61 L63 78 L67 96 L64 105 Q70 111 80 111 Q90 111 96 105 L93 96 L97 78 L100 61 L107 53 L102 42 Q96 37 88 35 L85 41 L75 41 Z" />
       <path d="M59 42 Q51 42 46 49 L38 67 L34 85 Q36 90 40 87 L47 72 L58 58 Z M101 42 Q109 42 114 49 L122 67 L126 85 Q124 90 120 87 L113 72 L102 58 Z" />
-      <path d="M69 108 Q62 109 60 119 L55 144 L54 164 Q58 168 63 164 L70 144 L76 116 Z M91 108 Q98 109 100 119 L105 144 L106 164 Q102 168 97 164 L90 144 L84 116 Z" />
-      <path d="M64 164 Q58 165 54 169 L54 172 L74 172 L75 168 Z M96 164 Q102 165 106 169 L106 172 L86 172 L85 168 Z" />
+      {/* Separate left and right legs prevent doubled silhouettes and the visible overlap. */}
+      <path d="M68 106 Q73 109 79 108 L78 120 L73 141 L69 164 L61 165 L62 141 L64 119 Z" />
+      <path d="M81 108 Q87 109 92 106 L96 119 L98 141 L99 165 L91 164 L87 141 L82 120 Z" />
+      <path d="M63 164 Q58 165 54 169 L54 172 L74 172 L75 168 Z M97 164 Q102 165 106 169 L106 172 L86 172 L85 168 Z" />
     </g>
     <g>{muscles}</g>
     <g className="anatomy-contour">
